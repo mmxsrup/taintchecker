@@ -8,8 +8,7 @@ import (
 )
 
 func readFile() {
-	file := "/tmp/a"
-	content, err := ioutil.ReadFile(file) // OK
+	content, err := ioutil.ReadFile("test.txt") // OK
 	if err != nil {
 		log.Fatal(err)
 	}
