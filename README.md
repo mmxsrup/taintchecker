@@ -7,3 +7,6 @@ The purpose of this tool is to find security issues.
 ```
 go get -u git@github.com:mmxsrup/taintchecker.git
 ```
+
+## Check item
+* Detect file access using tainted file path. 
