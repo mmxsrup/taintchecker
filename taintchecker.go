@@ -93,6 +93,7 @@ func checkTaintNode(node ast.Node) bool {
 		if len(node.Rhs) == 0 {
 			return true
 		}
+		// If all right values are generated from constants, then this node is not tainted.
 		for _, rval := range node.Rhs {
 			if checkTaintNode(rval) {
 				return true
