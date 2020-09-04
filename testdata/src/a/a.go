@@ -17,7 +17,6 @@ func readFile() {
 
 func readTaintedFile() {
 	file := os.Getenv("TAINTED_FILE_PATH")
-	fmt.Println(file)
 	content, err := ioutil.ReadFile(file) // want "NG"
 	if err != nil {
 		log.Fatal(err)
