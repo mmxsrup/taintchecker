@@ -20,6 +20,18 @@ var Analyzer = &analysis.Analyzer{
 	},
 }
 
+var targetFunctions []string
+
+func init() {
+	// File access functions
+	targetFunctions = append(targetFunctions, "Open")     // os package
+	targetFunctions = append(targetFunctions, "ReadFile") // ioutil package
+
+	// SQL function
+	targetFunctions = append(targetFunctions, "Query")    // database/sql package
+	targetFunctions = append(targetFunctions, "QueryRow") // database/sql package
+}
+
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
@@ -40,10 +52,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 		flag := false
 
-		if id != nil && id.Name == "ReadFile" {
-			for _, arg := range args {
-				if ident, ok := arg.(*ast.Ident); ok {
-					flag = checkTaintNode(ident)
+		for _, targetFunction := range targetFunctions {
+			if id != nil && id.Name == targetFunction {
+				for _, arg := range args {
+					if ident, ok := arg.(*ast.Ident); ok {
+						flag = checkTaintNode(ident)
+					}
 				}
 			}
 		}
