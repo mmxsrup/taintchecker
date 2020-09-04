@@ -47,19 +47,37 @@ func readTaintedFile() {
 func sqlQuery() {
 	query := "SELECT id, name FROM person"
 	db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
-	rows, err := db.Query(query) // OK
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
+	defer db.Close()
+	db.Query(query) // OK
 }
 
 func sqlTaintedQuery() {
 	query := os.Getenv("TAINTED_SQL_Query")
 	db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
-	rows, err := db.Query(query) // want "NG"
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
+	defer db.Close()
+	db.Query(query) // want "NG"
+}
+
+func sqlQueryRow() {
+	query := "SELECT id, name FROM person"
+	db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.QueryRow(query) // OK
+}
+
+func sqlTaintedQueryRow() {
+	query := os.Getenv("TAINTED_SQL_Query")
+	db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.QueryRow(query) // want "NG"
 }
