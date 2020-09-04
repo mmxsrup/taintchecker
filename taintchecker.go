@@ -55,8 +55,13 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		for _, targetFunction := range targetFunctions {
 			if id != nil && id.Name == targetFunction {
 				for _, arg := range args {
+					// targetFunction(arg)
 					if ident, ok := arg.(*ast.Ident); ok {
 						flag = checkTaintNode(ident)
+					}
+					// targetFunction(arg1 + arg2)
+					if binaryExpr, ok := arg.(*ast.BinaryExpr); ok {
+						flag = checkTaintNode(binaryExpr)
 					}
 				}
 			}
@@ -70,27 +75,35 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
+// This function returns true if the argument node is tainted.
+// - Search the AST rooted at the argument node.
+// - Check if this node is created only from constant values.
 func checkTaintNode(node ast.Node) bool {
 	switch node := node.(type) {
 	case *ast.BasicLit:
-		return true
+		return false
 	case *ast.Ident:
 		if node.Obj == nil || node.Obj.Kind == ast.Con {
-			return true
+			return false
 		}
 		if node, ok := node.Obj.Decl.(ast.Node); ok {
 			return checkTaintNode(node)
 		}
-		return false
 	case *ast.AssignStmt:
 		if len(node.Rhs) == 0 {
-			return false
+			return true
 		}
 		for _, rval := range node.Rhs {
 			if checkTaintNode(rval) {
-				return false
+				return true
 			}
 		}
+		return false
+	case *ast.BinaryExpr:
+		return checkTaintNode(node.X) || checkTaintNode(node.Y)
+	case *ast.CallExpr:
+		// TODO: We should make sure that the return value of this function is trustworthy,
+		//       but for simplicity we don't trust all functions.
 		return true
 	}
 	return false

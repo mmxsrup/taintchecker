@@ -1,7 +1,6 @@
 package a
 
 import (
-	"fmt"
 	"os"
 	"io/ioutil"
 	"log"
@@ -10,38 +9,46 @@ import (
 
 func openFile() {
 	filepath := "test.txt"
-	file, err := os.Open(filepath) // OK
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+	os.Open(filepath) // OK
+
+	homepath := "/home/"
+	os.Open(homepath + filepath) // OK
+
+	dirpath := "test/"
+	os.Open(homepath + dirpath + filepath) // OK
 }
 
 func openTaintedFile() {
 	filepath := os.Getenv("TAINTED_FILE_PATH")
-	file, err := os.Open(filepath) // want "NG"
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+	os.Open(filepath) // want "NG"
+
+	homepath := "/home/"
+	os.Open(homepath + filepath) // want "NG"
+
+	dirpath := "test/"
+	os.Open(homepath + dirpath + filepath) // want "NG"
 }
 
 func readFile() {
 	filepath := "test.txt"
-	content, err := ioutil.ReadFile(filepath) // OK
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(content))
+	ioutil.ReadFile(filepath) // OK
+
+	homepath := "/home/"
+	ioutil.ReadFile(homepath + filepath) // OK
+
+	dirpath := "test/"
+	ioutil.ReadFile(homepath + dirpath + filepath) // OK
 }
 
 func readTaintedFile() {
 	filepath := os.Getenv("TAINTED_FILE_PATH")
-	content, err := ioutil.ReadFile(filepath) // want "NG"
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(content))
+	ioutil.ReadFile(filepath) // want "NG"
+
+	homepath := "/home/"
+	ioutil.ReadFile(homepath + filepath) // want "NG"
+
+	dirpath := "test/"
+	ioutil.ReadFile(homepath + dirpath + filepath) // want "NG"
 }
 
 func sqlQuery() {
