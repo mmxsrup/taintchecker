@@ -19,3 +19,7 @@ In other words, we assume that all values other than the constant are taint valu
 * Detect sql operations with tainted queries.
   * database/sql.Query()
   * database/sql.QueryRow()
+
+## TODO
+* Checks whether the value returned by the function call is tainted.
+* Checks whether the value given as function arguments is tainted.
