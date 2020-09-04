@@ -29,6 +29,11 @@ func openTaintedFile() {
 	os.Open(homepath + dirpath + filepath) // want "NG"
 }
 
+// TODO: Should check if the argument is tainted.
+func openFileFromArg(filepath string) {
+	os.Open(filepath) // want "NG"
+}
+
 func readFile() {
 	filepath := "test.txt"
 	ioutil.ReadFile(filepath) // OK

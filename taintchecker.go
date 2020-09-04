@@ -105,6 +105,10 @@ func checkTaintNode(node ast.Node) bool {
 		// TODO: We should make sure that the return value of this function is trustworthy,
 		//       but for simplicity we don't trust all functions.
 		return true
+	case *ast.Field:
+		// TODO: We should make sure that arguments of this function is trustworthy,
+		//       but for simplicity we don't trust all arguments.
+		return true
 	}
 	return false
 }
