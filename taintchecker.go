@@ -42,11 +42,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 		if id != nil && id.Name == "ReadFile" {
 			for _, arg := range args {
-				switch a := arg.(type) {
-				case *ast.Ident:
-					if (*a.Obj).Kind == ast.Var {
-						flag = true
-					}
+				if ident, ok := arg.(*ast.Ident); ok {
+					flag = checkTaintNode(ident)
 				}
 			}
 		}
@@ -57,4 +54,30 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	})
 
 	return nil, nil
+}
+
+func checkTaintNode(node ast.Node) bool {
+	switch node := node.(type) {
+	case *ast.BasicLit:
+		return true
+	case *ast.Ident:
+		if node.Obj == nil || node.Obj.Kind == ast.Con {
+			return true
+		}
+		if node, ok := node.Obj.Decl.(ast.Node); ok {
+			return checkTaintNode(node)
+		}
+		return false
+	case *ast.AssignStmt:
+		if len(node.Rhs) == 0 {
+			return false
+		}
+		for _, rval := range node.Rhs {
+			if checkTaintNode(rval) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
